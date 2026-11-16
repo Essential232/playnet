@@ -1,180 +1,214 @@
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { Platform, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { ExternalLink } from '@/components/external-link';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Collapsible } from '@/components/ui/collapsible';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-export default function TabTwoScreen() {
-  const safeAreaInsets = useSafeAreaInsets();
-  const insets = {
-    ...safeAreaInsets,
-    bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-  };
+const games = [
+  { title: 'Connect 4', detail: '2 players · Strategy', color: '#f4b740' },
+  { title: 'Tic-Tac-Toe', detail: '2 players · Quick match', color: '#65b6a1' },
+  { title: 'Word Guess', detail: '2–8 players · Party', color: '#b187e8' },
+];
+
+const friends = [
+  { name: 'Maya Johnson', username: '@mayaj', initials: 'MJ', online: true },
+  { name: 'Sam Wilson', username: '@samwilson', initials: 'SW', online: true },
+  { name: 'Riley Chen', username: '@rileychen', initials: 'RC', online: false },
+];
+
+export default function ExploreScreen() {
   const theme = useTheme();
 
-  const contentPlatformStyle = Platform.select({
-    android: {
-      paddingTop: insets.top,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-      paddingBottom: insets.bottom,
-    },
-    web: {
-      paddingTop: Spacing.six,
-      paddingBottom: Spacing.four,
-    },
-  });
-
   return (
-    <ScrollView
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentInset={insets}
-      contentContainerStyle={[styles.contentContainer, contentPlatformStyle]}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="subtitle">Explore</ThemedText>
-          <ThemedText style={styles.centerText} themeColor="textSecondary">
-            This starter app includes example{'\n'}code to help you get started.
+    <ThemedView style={styles.container}>
+      <SafeAreaView edges={['top']} style={styles.safeArea}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          <ThemedText type="small" themeColor="textSecondary">
+            Discover something new
+          </ThemedText>
+          <ThemedText type="subtitle" style={styles.title}>
+            Explore
           </ThemedText>
 
-          <ExternalLink href="https://docs.expo.dev" asChild>
-            <Pressable style={({ pressed }) => pressed && styles.pressed}>
-              <ThemedView type="backgroundElement" style={styles.linkButton}>
-                <ThemedText type="link">Expo documentation</ThemedText>
-                <SymbolView
-                  tintColor={theme.text}
-                  name={{ ios: 'arrow.up.right.square', android: 'link', web: 'link' }}
-                  size={12}
-                />
-              </ThemedView>
+          <View style={styles.sectionHeader}>
+            <ThemedText type="smallBold">Play together</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Mini-games
+            </ThemedText>
+          </View>
+
+          {games.map((game) => (
+            <Pressable
+              key={game.title}
+              accessibilityLabel={`Play ${game.title}`}
+              style={({ pressed }) => [
+                styles.gameCard,
+                { backgroundColor: game.color },
+                pressed && styles.pressed,
+              ]}>
+              <View style={styles.gameCardCopy}>
+                <ThemedText type="subtitle" style={styles.gameTitle}>
+                  {game.title}
+                </ThemedText>
+                <ThemedText style={styles.gameDetail}>{game.detail}</ThemedText>
+              </View>
+              <View style={styles.playButton}>
+                <ThemedText style={styles.playButtonText}>Play</ThemedText>
+              </View>
             </Pressable>
-          </ExternalLink>
-        </ThemedView>
+          ))}
 
-        <ThemedView style={styles.sectionsWrapper}>
-          <Collapsible title="File-based routing">
-            <ThemedText type="small">
-              This app has two screens: <ThemedText type="code">src/app/index.tsx</ThemedText> and{' '}
-              <ThemedText type="code">src/app/explore.tsx</ThemedText>
-            </ThemedText>
-            <ThemedText type="small">
-              The layout file in <ThemedText type="code">src/app/_layout.tsx</ThemedText> sets up
-              the tab navigator.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/router/introduction">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Android, iOS, and web support">
-            <ThemedView type="backgroundElement" style={styles.collapsibleContent}>
-              <ThemedText type="small">
-                You can open this project on Android, iOS, and the web. To open the web version,
-                press <ThemedText type="smallBold">w</ThemedText> in the terminal running this
-                project.
+          <View style={[styles.inviteCard, { backgroundColor: theme.backgroundElement }]}>
+            <View style={styles.inviteCopy}>
+              <ThemedText type="smallBold">Invite a friend</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                Share your username or QR code to connect.
               </ThemedText>
-              <Image
-                source={require('@/assets/images/tutorial-web.png')}
-                style={styles.imageTutorial}
-              />
-            </ThemedView>
-          </Collapsible>
+            </View>
+            <Pressable accessibilityLabel="Share your profile">
+              <ThemedText type="linkPrimary">Share</ThemedText>
+            </Pressable>
+          </View>
 
-          <Collapsible title="Images">
-            <ThemedText type="small">
-              For static images, you can use the <ThemedText type="code">@2x</ThemedText> and{' '}
-              <ThemedText type="code">@3x</ThemedText> suffixes to provide files for different
-              screen densities.
-            </ThemedText>
-            <Image source={require('@/assets/images/react-logo.png')} style={styles.imageReact} />
-            <ExternalLink href="https://reactnative.dev/docs/images">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
+          <View style={styles.sectionHeader}>
+            <ThemedText type="smallBold">People you may know</ThemedText>
+            <ThemedText type="linkPrimary">Find friends</ThemedText>
+          </View>
 
-          <Collapsible title="Light and dark mode components">
-            <ThemedText type="small">
-              This template has light and dark mode support. The{' '}
-              <ThemedText type="code">useColorScheme()</ThemedText> hook lets you inspect what the
-              user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-            </ThemedText>
-            <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-              <ThemedText type="linkPrimary">Learn more</ThemedText>
-            </ExternalLink>
-          </Collapsible>
-
-          <Collapsible title="Animations">
-            <ThemedText type="small">
-              This template includes an example of an animated component. The{' '}
-              <ThemedText type="code">src/components/ui/collapsible.tsx</ThemedText> component uses
-              the powerful <ThemedText type="code">react-native-reanimated</ThemedText> library to
-              animate opening this hint.
-            </ThemedText>
-          </Collapsible>
-        </ThemedView>
-        {Platform.OS === 'web' && <WebBadge />}
-      </ThemedView>
-    </ScrollView>
+          {friends.map((friend) => (
+            <View key={friend.username} style={styles.friendRow}>
+              <View style={[styles.avatar, { backgroundColor: theme.backgroundElement }]}>
+                <ThemedText type="smallBold">{friend.initials}</ThemedText>
+                {friend.online && <View style={styles.onlineDot} />}
+              </View>
+              <View style={styles.friendCopy}>
+                <ThemedText type="smallBold">{friend.name}</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {friend.username}
+                </ThemedText>
+              </View>
+              <Pressable
+                accessibilityLabel={`Add ${friend.name}`}
+                style={styles.addButton}>
+                <ThemedText type="smallBold" style={styles.addButtonText}>
+                  Add
+                </ThemedText>
+              </Pressable>
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollView: {
+  container: {
     flex: 1,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  container: {
-    maxWidth: MaxContentWidth,
-    flexGrow: 1,
-  },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: 'center',
+  safeArea: {
+    flex: 1,
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.six,
   },
-  centerText: {
-    textAlign: 'center',
+  content: {
+    paddingTop: Spacing.two,
+    paddingBottom: 120,
+  },
+  title: {
+    marginBottom: Spacing.five,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.two,
+  },
+  gameCard: {
+    minHeight: 132,
+    borderRadius: 20,
+    padding: Spacing.three,
+    marginBottom: Spacing.two,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.75,
   },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
+  gameCardCopy: {
     gap: Spacing.one,
+  },
+  gameTitle: {
+    color: '#ffffff',
+    fontSize: 24,
+    lineHeight: 30,
+  },
+  gameDetail: {
+    color: '#ffffff',
+  },
+  playButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+  },
+  playButtonText: {
+    color: '#1b1b1b',
+    fontWeight: '700',
+  },
+  inviteCard: {
+    borderRadius: 16,
+    padding: Spacing.three,
+    marginTop: Spacing.three,
+    marginBottom: Spacing.five,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.two,
   },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
+  inviteCopy: {
+    flex: 1,
+    gap: Spacing.one,
   },
-  collapsibleContent: {
+  friendRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.three,
+    paddingVertical: Spacing.two,
   },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
+  onlineDot: {
+    position: 'absolute',
+    right: -1,
+    bottom: 0,
+    width: 13,
+    height: 13,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    backgroundColor: '#35b86b',
+  },
+  friendCopy: {
+    flex: 1,
+    gap: Spacing.one,
+  },
+  addButton: {
+    borderWidth: 1,
+    borderColor: '#3c87f7',
+    borderRadius: 16,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+  },
+  addButtonText: {
+    color: '#3c87f7',
   },
 });
