@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Install auth dependency",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"install",
+				"react-native-url-polyfill@^2.0.0"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}
