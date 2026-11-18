@@ -18,6 +18,7 @@ export function AuthScreen() {
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+
   async function handleSubmit() {
     if (!email.trim() || password.length < 6) {
       setMessage('Enter an email and a password with at least 6 characters.');
@@ -39,6 +40,9 @@ export function AuthScreen() {
       setIsSubmitting(false);
     }
   }
+
+  
+
 
   async function handleGoogleSignIn() {
     setMessage(null);

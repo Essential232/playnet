@@ -21,7 +21,7 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
 }
 
-const authRedirectUrl = 'playnet://auth/callback';
+const authRedirectUrl = 'playnet://';
 
 function getCallbackParams(url: string) {
   const parsedUrl = new URL(url);
