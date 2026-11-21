@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
 import { supabase } from '@/../lib/supabase';
@@ -55,9 +56,30 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setError(null);
     });
 
+    const handleIncomingUrl = async (url: string) => {
+      const params = getCallbackParams(url);
+      if (!params.accessToken || !params.refreshToken) return;
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: params.accessToken,
+        refresh_token: params.refreshToken,
+      });
+      if (sessionError) setError(getErrorMessage(sessionError));
+    };
+
+    const linkingSubscription = Linking.addEventListener('url', ({ url }) => {
+      void handleIncomingUrl(url);
+    });
+
+    if (Platform.OS !== 'web') {
+      Linking.getInitialURL().then((url) => {
+        if (url) void handleIncomingUrl(url);
+      });
+    }
+
     return () => {
       isMounted = false;
       data.subscription.unsubscribe();
+      linkingSubscription.remove();
     };
   }, []);
 
@@ -79,10 +101,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
       },
       async signInWithGoogle() {
         setError(null);
+        const redirectTo =
+          Platform.OS === 'web' && typeof window !== 'undefined'
+            ? window.location.origin
+            : authRedirectUrl;
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: authRedirectUrl,
+            redirectTo,
             skipBrowserRedirect: Platform.OS !== 'web',
           },
         });

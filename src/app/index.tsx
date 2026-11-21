@@ -8,6 +8,10 @@ import {
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { AccountMenu } from '@/components/account-menu';
+import { useAuth } from '@/providers/auth-provider';
+import { router } from 'expo-router';
+import { useState } from 'react';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -58,14 +62,27 @@ const conversations: Conversation[] = [
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const { session } = useAuth();
+  const [menuVisible, setMenuVisible] = useState(false);
+  const displayName =
+    session?.user.user_metadata?.full_name ??
+    session?.user.user_metadata?.name ??
+    session?.user.email?.split('@')[0] ??
+    'Player';
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView edges={['top']} style={styles.safeArea}>
         <View style={styles.header}>
-          <View>
+          <Pressable
+            accessibilityLabel="Open account menu"
+            onPress={() => setMenuVisible(true)}
+            style={[styles.menuButton, { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type="smallBold">{displayName.slice(0, 2).toUpperCase()}</ThemedText>
+          </Pressable>
+          <View style={styles.headerCopy}>
             <ThemedText type="small" themeColor="textSecondary">
-              Your conversations
+              Welcome, {displayName}
             </ThemedText>
             <ThemedText type="subtitle">Chats</ThemedText>
           </View>
@@ -75,6 +92,7 @@ export default function HomeScreen() {
             <ThemedText style={styles.newButtonText}>+</ThemedText>
           </Pressable>
         </View>
+        <AccountMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
 
         <View style={[styles.searchBox, { backgroundColor: theme.backgroundElement }]}>
           <ThemedText themeColor="textSecondary">Search people and chats</ThemedText>
@@ -95,6 +113,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <Pressable
               accessibilityLabel={`Open chat with ${item.name}`}
+              onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.id, name: item.name } })}
               style={({ pressed }) => [styles.conversation, pressed && styles.pressed]}>
               <View style={[styles.avatar, { backgroundColor: theme.backgroundElement }]}>
                 <ThemedText type="smallBold">{item.initials}</ThemedText>
@@ -147,6 +166,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: Spacing.two,
     paddingBottom: Spacing.four,
+    gap: Spacing.two,
+  },
+  menuButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCopy: {
+    flex: 1,
   },
   newButton: {
     width: 44,

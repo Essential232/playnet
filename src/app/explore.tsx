@@ -1,10 +1,11 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { router } from 'expo-router';
 
 const games = [
   { title: 'Connect 4', detail: '2 players · Strategy', color: '#f4b740' },
@@ -43,6 +44,7 @@ export default function ExploreScreen() {
             <Pressable
               key={game.title}
               accessibilityLabel={`Play ${game.title}`}
+              onPress={() => router.push('/game')}
               style={({ pressed }) => [
                 styles.gameCard,
                 { backgroundColor: game.color },
@@ -67,7 +69,9 @@ export default function ExploreScreen() {
                 Share your username or QR code to connect.
               </ThemedText>
             </View>
-            <Pressable accessibilityLabel="Share your profile">
+            <Pressable
+              accessibilityLabel="Share your profile"
+              onPress={() => Share.share({ message: 'Join me on Playnet: playnet://' })}>
               <ThemedText type="linkPrimary">Share</ThemedText>
             </Pressable>
           </View>
